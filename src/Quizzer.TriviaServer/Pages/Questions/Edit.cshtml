@@ -1,0 +1,79 @@
+﻿@page
+@model Quizzer.TriviaServer.Pages.Questions.EditModel
+
+@{
+    ViewData["Title"] = $"Edit Question {Model.Question.Text}";
+}
+
+<h1>Edit Question</h1>
+
+<hr />
+<div class="row">
+    <form method="post" asp-page-handler="Save">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Question.Id" />
+        <div class="form-group">
+            <label asp-for="Question.Text" class="control-label"></label>
+            <input asp-for="Question.Text" class="form-control" />
+            <span asp-validation-for="Question.Text" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Question.QuestionType" class="control-label"></label>
+            <select asp-for="Question.QuestionType" class="form-control" asp-items="@Html.GetEnumSelectList<Entities.Question.OpenTriviaQuestionType>()"></select>
+            <span asp-validation-for="Question.QuestionType" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Question.Difficulty" class="control-label"></label>
+            <select asp-for="Question.Difficulty" class="form-control" asp-items="@Html.GetEnumSelectList<Entities.Question.OpenTriviaDifficulty>()"></select>
+            <span asp-validation-for="Question.Difficulty" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Question.CategoryId" class="control-label"></label>
+            <select asp-for="Question.CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+            <span asp-validation-for="Question.CategoryId" class="text-danger"></span>
+        </div>
+
+        <h4>Answers</h4>
+        <div class="form-row">
+            <span asp-validation-for="Question.Answers" class="text-danger"></span>
+        </div>
+        @if(Model.Question.Answers != null)
+        {
+            for(int i = 0; i < Model.Question.Answers.Count; i++)
+            {
+                var answer = Model.Question.Answers[i];
+                
+                <div class="row mb-3 align-items-center">
+                    <input type="hidden" asp-for="Question.Answers[i].QuestionId" />
+                    <input type="hidden" asp-for="Question.Answers[i].Order" />
+
+                    <div class="col-auto">
+                        <input asp-for="Question.Answers[i].Text" class="form-control" />
+                    </div>
+                    <div class="col-auto">
+                        @Html.CheckBoxFor(model => model.Question.Answers[i].IsCorrect)
+                        <label asp-for="Question.Answers[i].IsCorrect" class="form-check-label"></label>
+                    </div>
+
+                    <div class="col-auto">
+                        <input type="submit" class="btn btn-danger" value="Remove Answer" formnovalidate asp-page-handler="RemoveAnswer" asp-route-answerIndex="@i" />
+                    </div>
+                    <span asp-validation-for="Question.Answers[i].Text" class="text-danger"></span>
+                </div>
+            }
+        }
+        <input type="submit" class="btn btn-success mb-4" value="Add Answer" formnovalidate asp-page-handler="AddAnswer" />
+
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
